@@ -7,7 +7,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HabrCareerParse {
 
@@ -16,7 +17,7 @@ public class HabrCareerParse {
     public static final String SUFFIX = "&q=Java%20developer&type=all";
     public static final int COUNT_PAGE = 5;
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException  {
         for (int i = 1; i <= COUNT_PAGE; i++) {
             String fullLink = "%s%s%d%s".formatted(SOURCE_LINK, PREFIX, i, SUFFIX);
             Connection connection = Jsoup.connect(fullLink);
@@ -30,8 +31,27 @@ public class HabrCareerParse {
                 String vacancyName = titleElement.text();
                 String vacancyTime = dateTimeElement.attr("datetime");
                 String link = String.format("%s%s", SOURCE_LINK, linkElement.attr("href"));
-                System.out.printf("%s %s %s%n", vacancyName, vacancyTime, link);
+                String vacancyDescription = null;
+                try {
+                    vacancyDescription = retrieveDescription(linkElement.attr("href"));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                System.out.printf("%s %s %s %s%n", vacancyName, vacancyTime, link, vacancyDescription);
             });
         }
+    }
+
+    private static String retrieveDescription(String link) throws IOException {
+        List<String> listDescription = new ArrayList<>();
+        String fullLink = "%s%s".formatted(SOURCE_LINK, link);
+        Connection connection = Jsoup.connect(fullLink);
+        Document document = connection.get();
+        Elements rows = document.select(".vacancy-description__text");
+        rows.select(".style-ugc")
+                .forEach(row -> {
+                    listDescription.add(row.text());
+                });
+        return listDescription.toString();
     }
 }
