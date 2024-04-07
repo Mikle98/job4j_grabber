@@ -11,6 +11,10 @@ public class HabrCareerDateTimeParser implements DateTimeParser {
 
     @Override
     public LocalDateTime parse(String parse) {
+        if (!parse.contains("+")) {
+            parse += "+00:00";
+        }
+        parse = parse.replace(' ', 'T');
         return LocalDateTime.parse(parse, FORMMATTER);
     }
 }
