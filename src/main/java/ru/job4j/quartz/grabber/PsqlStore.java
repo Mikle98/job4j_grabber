@@ -77,22 +77,4 @@ public class PsqlStore implements Store {
             connection.close();
         }
     }
-
-    public static void main(String[] args) throws SQLException {
-        Properties properties = new Properties();
-        try (InputStream inputStream = PsqlStore.class.getClassLoader()
-                                                        .getResourceAsStream("post.properties")) {
-            properties.load(inputStream);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        HabrCareerDateTimeParser habrCareerDateTimeParser = new HabrCareerDateTimeParser();
-        PsqlStore psqlStore = new PsqlStore(properties);
-        psqlStore.save(new Post("test",
-                                "test",
-                            "test",
-                                    habrCareerDateTimeParser.parse("2024-04-07T14:40:31+03:00")));
-        System.out.println(psqlStore.findById(1).toString());
-        System.out.println(psqlStore.getAll().toString());
-    }
 }

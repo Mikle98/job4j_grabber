@@ -33,13 +33,6 @@ public class HabrCareerParse implements Parse {
         this.dateTimeParser = dateTimeParser;
     }
 
-
-    public static void main(String[] args) throws IOException  {
-        HabrCareerParse habrCareerParse = new HabrCareerParse(new HabrCareerDateTimeParser());
-        habrCareerParse.setListPost("https://career.habr.com/vacancies?page=&q=Java%20developer&type=all");
-        System.out.println(habrCareerParse.getList().toString());
-    }
-
     private String retrieveDescription(String link) throws IOException {
         List<String> listDescription = new ArrayList<>();
         String fullLink = "%s%s".formatted(sourceLink, link);
@@ -78,7 +71,7 @@ public class HabrCareerParse implements Parse {
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                    postList.add(new Post(vacancyName, vacancyLink, vacancyDescription, dateTimeParser.parse(vacancyTime)));
+                    postList.add(new Post(vacancyName, vacancyLink, vacancyDescription.replace('\'', ' '), dateTimeParser.parse(vacancyTime)));
                 });
             }
             return postList;
