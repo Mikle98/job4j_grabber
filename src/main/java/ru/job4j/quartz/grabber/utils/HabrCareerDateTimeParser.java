@@ -1,15 +1,16 @@
 package ru.job4j.quartz.grabber.utils;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
-import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
 public class HabrCareerDateTimeParser implements DateTimeParser {
 
+    private static final DateTimeFormatter FORMMATTER = ISO_OFFSET_DATE_TIME;
+
     @Override
     public LocalDateTime parse(String parse) {
-        LocalDateTime time = LocalDateTime.parse(parse, ISO_OFFSET_DATE_TIME);
-        return LocalDateTime.parse(time.format(ISO_LOCAL_DATE_TIME));
+        return LocalDateTime.parse(parse, FORMMATTER);
     }
 }
