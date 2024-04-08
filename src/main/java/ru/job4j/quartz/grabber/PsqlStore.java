@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -40,10 +42,11 @@ public class PsqlStore implements Store {
             List<Post> posts = new ArrayList<>();
             ResultSet resultSet = statement.executeQuery(sql);
             while (resultSet.next()) {
+                Timestamp timestamp = Timestamp.valueOf(resultSet.getString("created"));
                 posts.add(new Post(resultSet.getString("name"),
                                    resultSet.getString("link"),
                                     resultSet.getString("text"),
-                                    habrCareerDateTimeParser.parse(resultSet.getString("created"))));
+                                    habrCareerDateTimeParser.parse(timestamp.toLocalDateTime().atOffset(ZoneOffset.UTC).toString())));
             }
             return posts;
         } catch (SQLException e) {

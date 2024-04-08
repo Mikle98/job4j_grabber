@@ -1,5 +1,6 @@
 package ru.job4j.quartz.grabber.utils;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -11,10 +12,6 @@ public class HabrCareerDateTimeParser implements DateTimeParser {
 
     @Override
     public LocalDateTime parse(String parse) {
-        if (!parse.contains("+")) {
-            parse += "+00:00";
-        }
-        parse = parse.replace(' ', 'T');
         return LocalDateTime.parse(parse, FORMMATTER);
     }
 }
