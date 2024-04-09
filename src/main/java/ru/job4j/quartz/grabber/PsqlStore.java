@@ -28,25 +28,15 @@ public class PsqlStore implements Store {
                                                 config.getProperty("jdbc.password"));
     }
 
-    public void statmentExecute(String sql) {
-        try (Statement statement = connection.createStatement()) {
-            statement.execute(sql);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public List<Post> getSQLRows(String sql) {
+        List<Post> posts = new ArrayList<>();
         try (Statement statement = connection.createStatement()) {
-            HabrCareerDateTimeParser habrCareerDateTimeParser = new HabrCareerDateTimeParser();
-            List<Post> posts = new ArrayList<>();
             ResultSet resultSet = statement.executeQuery(sql);
             while (resultSet.next()) {
-                Timestamp timestamp = Timestamp.valueOf(resultSet.getString("created"));
                 posts.add(new Post(resultSet.getString("name"),
                                    resultSet.getString("link"),
                                     resultSet.getString("text"),
-                                    habrCareerDateTimeParser.parse(timestamp.toLocalDateTime().atOffset(ZoneOffset.UTC).toString())));
+                                    resultSet.getTimestamp("created").toLocalDateTime()));
             }
             return posts;
         } catch (SQLException e) {
@@ -56,9 +46,22 @@ public class PsqlStore implements Store {
 
     @Override
     public void save(Post post) {
-        String sql = String.format("insert into post(name, text, link, created) values ('%s', '%s', '%s', '%s') on conflict (link) do nothing",
-                                        post.title, post.description, post.link, post.created);
-        statmentExecute(sql);
+        try (PreparedStatement statement =
+                     connection.prepareStatement("insert into post(name, text, link, created) values (?, ?, ?, ?) "
+                             + "on conflict (link) do nothing")) {
+            statement.setString(1, post.title);
+            statement.setString(2, post.description);
+            statement.setString(3, post.link);
+            statement.setTimestamp(4, Timestamp.valueOf(post.created));
+            statement.execute();
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    post.id = generatedKeys.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
