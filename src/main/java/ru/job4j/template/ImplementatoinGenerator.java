@@ -5,6 +5,7 @@ import java.util.Map;
 public class ImplementatoinGenerator implements Generator {
     @Override
     public String produce(String template, Map<String, String> args) {
-        return "";
+        String str = "";
+        return str;
     }
 }
